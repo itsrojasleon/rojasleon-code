@@ -1,14 +1,27 @@
-# Welcome to your CDK TypeScript project
+# Scalable S3 uploads
 
-This is a blank project for CDK development with TypeScript.
+## Requirements
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- [Bun](https://bun.sh)
 
-## Useful commands
+## Installation
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+```shell
+bun install
+```
+
+## Running tests
+
+```shell
+bun run test
+```
+
+## (Optional) Generate a sample csv file
+
+In the root of the project run:
+
+```
+bun scripts/create-huge-file.ts
+```
+
+Quickly you'll see a file named `largefile.csv` in the same `scripts` folder.

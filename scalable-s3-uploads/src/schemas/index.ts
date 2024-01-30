@@ -1,71 +1,56 @@
 import { FromSchema } from 'json-schema-to-ts';
 
-export type Order = FromSchema<typeof orderSchema>;
+export type User = FromSchema<typeof userSchema>;
 
-export const orderSchema = {
+export const userSchema = {
   type: 'object',
   properties: {
-    orderId: {
+    userId: {
+      type: 'string',
+      pattern: 'U\\d+'
+    },
+    fullName: {
       type: 'string'
     },
-    customerId: {
-      type: 'string'
+    email: {
+      type: 'string',
+      format: 'email'
     },
-    items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          productId: {
-            type: 'string'
-          },
-          name: {
-            type: 'string'
-          },
-          quantity: {
-            type: 'number'
-          },
-          price: {
-            type: 'number'
-          }
-        },
-        required: ['productId', 'name', 'quantity', 'price']
-      }
+    phoneNumber: {
+      type: 'string',
+      pattern: '\\d{3}-\\d{3}-\\d{4}'
     },
-    paymentInfo: {
-      type: 'object',
-      properties: {
-        method: {
-          type: 'string'
-        },
-        totalAmount: {
-          type: 'number'
-        },
-        currency: {
-          type: 'string'
-        }
-      },
-      required: ['method', 'totalAmount', 'currency']
-    },
-    orderDate: {
+    registrationDate: {
       type: 'string',
       format: 'date-time'
     },
-    deliveryDate: {
+    eventId: {
       type: 'string',
-      format: 'date-time'
+      pattern: 'EVT\\d+'
     },
-    status: {
+    eventName: {
       type: 'string'
+    },
+    attendanceStatus: {
+      type: 'string',
+      enum: [
+        'Confirmed',
+        'Interested',
+        'Pending',
+        'Cancelled',
+        'Attended',
+        'Not Attended'
+      ]
     }
   },
   required: [
-    'orderId',
-    'customerId',
-    'items',
-    'paymentInfo',
-    'orderDate',
-    'deliveryDate',
-    'status'
+    'userId',
+    'fullName',
+    'email',
+    'phoneNumber',
+    'registrationDate',
+    'eventId',
+    'eventName',
+    'attendanceStatus'
   ]
 } as const;

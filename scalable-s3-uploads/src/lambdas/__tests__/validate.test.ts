@@ -23,6 +23,7 @@ const callHandler = async () => {
       }
     ]
   });
+  return res;
 };
 
 describe('validate lambda handler', () => {

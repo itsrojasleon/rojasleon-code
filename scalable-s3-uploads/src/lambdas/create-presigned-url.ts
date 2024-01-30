@@ -8,13 +8,10 @@ export const handler: APIGatewayProxyHandlerV2 = async () => {
     throw new Error('missing BUCKET_NAME environment variable');
   }
 
-  const key = `/uploads/${generateId()}.csv`;
-
   const { url, fields } = await createPresignedPost(s3, {
     Bucket: process.env.BUCKET_NAME,
-    Key: key,
+    Key: `/uploads/${generateId()}.csv`,
     Expires: 3600 // 1 hour.
-    // Feel free to add additional config depending on your use case.
     // Conditions,
     // Fields
   });
