@@ -1,6 +1,8 @@
+import { Upload } from '@aws-sdk/lib-storage';
 import { validate } from 'json-schema';
-import { Transform } from 'node:stream';
+import { Readable, Transform } from 'node:stream';
 import * as zlib from 'node:zlib';
+import { s3 } from '../clients';
 import { User, userSchema } from '../schemas';
 
 export const generateId = () => {
@@ -32,4 +34,30 @@ export const createGzip = () => {
   return zlib.createGzip({
     flush: zlib.constants.Z_SYNC_FLUSH // See http://www.zlib.net/manual.html#Advanced
   });
+};
+
+interface MultipartUploadInput {
+  bucket: string;
+  key: string;
+  body: Readable;
+}
+
+export const multipartUpload = async ({
+  bucket,
+  key,
+  body
+}: MultipartUploadInput) => {
+  const parallelUploads3 = new Upload({
+    client: s3,
+    params: { Bucket: bucket, Key: key, Body: body },
+    queueSize: 4, // optional concurrency limit, default is 4.
+    partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB.
+    leavePartsOnError: false
+  });
+
+  parallelUploads3.on('httpUploadProgress', (progress) => {
+    console.log(progress);
+  });
+
+  await parallelUploads3.done();
 };

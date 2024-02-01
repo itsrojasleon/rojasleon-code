@@ -8,7 +8,9 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "tsx --test src/lambdas/__tests__/*test.ts",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy": "cdk deploy --require-approval never",
+    "destroy": "cdk destroy --force"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.501.0",
@@ -20,8 +22,10 @@
     "@types/node": "20.11.6",
     "aws-cdk": "2.124.0",
     "aws-sdk-client-mock": "^3.0.1",
+    "axios": "^1.6.7",
     "csv-stringify": "^6.4.5",
     "esbuild": "^0.19.12",
+    "form-data": "^4.0.0",
     "json-schema-to-ts": "^3.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.0",

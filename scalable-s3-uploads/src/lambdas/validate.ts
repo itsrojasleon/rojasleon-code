@@ -1,11 +1,12 @@
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { S3Event, SQSHandler } from 'aws-lambda';
 import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { createGzip } from 'node:zlib';
 import { s3 } from '../clients';
-import { createGzip, generateId, validatorTransform } from '../utils';
+import { generateId, multipartUpload, validatorTransform } from '../utils';
 
 export const handler: SQSHandler = async (event) => {
   const failedMessageIds: string[] = [];
@@ -24,23 +25,42 @@ export const handler: SQSHandler = async (event) => {
 
       const out = new PassThrough();
 
-      await pipeline(
-        Body as Readable,
-        parse({ columns: true }),
-        validatorTransform(),
-        stringify({ header: true }),
-        createGzip(),
-        out
-      );
+      await Promise.all([
+        pipeline(
+          Body as Readable,
+          parse({ columns: true }),
+          validatorTransform(),
+          stringify({ header: true }),
+          createGzip(),
+          out
+        )
+      ]);
 
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: bucketName,
-          Key: `/validations/${generateId()}.csv.gz`,
-          Body: out
-        })
-      );
-    } catch (e) {
+      await multipartUpload({
+        bucket: bucketName,
+        key: `validations/${generateId()}.csv.gz`,
+        body: out
+      });
+
+      // const pipelinePromise = pipeline(
+      //   Body as Readable,
+      //   parse({ columns: true }),
+      //   validatorTransform(),
+      //   stringify({ header: true }),
+      //   createGzip(),
+      //   out
+      // );
+      // const uploadPromise = s3.send(
+      //   new PutObjectCommand({
+      //     Bucket: bucketName,
+      //     Key: `/validations/${generateId()}.csv.gz`,
+      //     Body: out
+      //   })
+      // );
+
+      // await Promise.all([pipelinePromise, uploadPromise]);
+    } catch (err) {
+      console.log(err);
       failedMessageIds.push(r.messageId);
     }
   });

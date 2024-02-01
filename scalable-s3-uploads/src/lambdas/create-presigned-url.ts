@@ -10,7 +10,7 @@ export const handler: APIGatewayProxyHandlerV2 = async () => {
 
   const { url, fields } = await createPresignedPost(s3, {
     Bucket: process.env.BUCKET_NAME,
-    Key: `/uploads/${generateId()}.csv`,
+    Key: `uploads/${generateId()}.csv`,
     Expires: 3600 // 1 hour.
     // Conditions,
     // Fields

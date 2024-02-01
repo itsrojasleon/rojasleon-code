@@ -11,7 +11,7 @@ const generateCSV = (filePath: string, targetSizeInGB: number) => {
   stream.write(header);
 
   const estimatedRowSize = Buffer.byteLength(sampleRow);
-  const targetSize = targetSizeInGB * 1024;
+  const targetSize = targetSizeInGB * 1024 * 1024 * 1024;
   const numberOfLines = Math.ceil(targetSize / estimatedRowSize);
 
   for (let i = 0; i < numberOfLines; i++) {

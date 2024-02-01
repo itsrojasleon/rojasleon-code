@@ -35,7 +35,9 @@ export class AppStack extends cdk.Stack {
       }
     });
 
-    bucket.addObjectCreatedNotification(new s3n.SqsDestination(queue));
+    bucket.addObjectCreatedNotification(new s3n.SqsDestination(queue), {
+      prefix: '/uploads/'
+    });
 
     return { queue };
   }
@@ -92,6 +94,7 @@ export class AppStack extends cdk.Stack {
     timeout: number;
   }): lambda.NodejsFunction {
     return new lambda.NodejsFunction(this, attrs.id, {
+      depsLockFilePath: 'bun.lockb',
       entry: `src/lambdas/${attrs.filename}.ts`,
       handler: 'handler',
       runtime: Runtime.NODEJS_20_X,
