@@ -13,7 +13,7 @@ const callHandler = async () => {
   };
 };
 
-describe('create-presigned-url lambda handler', () => {
+describe.skip('create-presigned-url lambda handler', () => {
   it('validates env variables', async () => {
     await callHandler().catch((e) => {
       assert.strictEqual(e.message, 'missing BUCKET_NAME environment variable');

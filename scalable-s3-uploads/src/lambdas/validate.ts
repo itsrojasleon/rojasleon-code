@@ -4,61 +4,43 @@ import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify';
 import { PassThrough, Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { createGzip } from 'node:zlib';
 import { s3 } from '../clients';
-import { generateId, multipartUpload, validatorTransform } from '../utils';
+import { createGzip, multipartUpload, validatorTransform } from '../utils';
 
 export const handler: SQSHandler = async (event) => {
   const failedMessageIds: string[] = [];
 
   const promises = event.Records.map(async (r) => {
     try {
+      console.time('validation');
       const s3Evt: S3Event = JSON.parse(r.body);
 
       const bucketName = s3Evt.Records[0].s3.bucket.name;
       const objectKey = s3Evt.Records[0].s3.object.key;
 
-      const cmd = new GetObjectCommand({ Bucket: bucketName, Key: objectKey });
-      const { Body } = await s3.send(cmd);
+      const { Body } = await s3.send(
+        new GetObjectCommand({ Bucket: bucketName, Key: objectKey })
+      );
 
       if (!Body) throw new Error('file does not exist');
 
       const out = new PassThrough();
 
-      await Promise.all([
-        pipeline(
-          Body as Readable,
-          parse({ columns: true }),
-          validatorTransform(),
-          stringify({ header: true }),
-          createGzip(),
-          out
-        )
-      ]);
+      await pipeline(
+        Body as Readable,
+        parse({ columns: true }),
+        validatorTransform(),
+        stringify({ header: true }),
+        createGzip(),
+        out
+      );
 
       await multipartUpload({
         bucket: bucketName,
-        key: `validations/${generateId()}.csv.gz`,
+        key: `validations/${objectKey}.csv.gz`,
         body: out
       });
-
-      // const pipelinePromise = pipeline(
-      //   Body as Readable,
-      //   parse({ columns: true }),
-      //   validatorTransform(),
-      //   stringify({ header: true }),
-      //   createGzip(),
-      //   out
-      // );
-      // const uploadPromise = s3.send(
-      //   new PutObjectCommand({
-      //     Bucket: bucketName,
-      //     Key: `/validations/${generateId()}.csv.gz`,
-      //     Body: out
-      //   })
-      // );
-
-      // await Promise.all([pipelinePromise, uploadPromise]);
+      console.timeEnd('validation');
     } catch (err) {
       console.log(err);
       failedMessageIds.push(r.messageId);

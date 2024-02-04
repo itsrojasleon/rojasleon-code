@@ -36,7 +36,7 @@ export class AppStack extends cdk.Stack {
     });
 
     bucket.addObjectCreatedNotification(new s3n.SqsDestination(queue), {
-      prefix: '/uploads/'
+      prefix: 'uploads/'
     });
 
     return { queue };
@@ -84,6 +84,7 @@ export class AppStack extends cdk.Stack {
     });
 
     bucket.grantRead(validateFilesLambda);
+    bucket.grantWrite(validateFilesLambda);
     queue.grantConsumeMessages(validateFilesLambda);
   }
 

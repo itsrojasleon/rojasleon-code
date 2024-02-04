@@ -32,6 +32,8 @@ describe('validate lambda handler', () => {
       Body: stream
     });
 
-    await callHandler();
+    const r = await callHandler();
+
+    console.error(r);
   });
 });
