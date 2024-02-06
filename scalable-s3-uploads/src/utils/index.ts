@@ -32,7 +32,8 @@ export const validatorTransform = () => {
 
 export const createGzip = () => {
   return zlib.createGzip({
-    flush: zlib.constants.Z_SYNC_FLUSH // See http://www.zlib.net/manual.html#Advanced
+    flush: zlib.constants.Z_SYNC_FLUSH, // See http://www.zlib.net/manual.html#Advanced
+    level: zlib.constants.Z_BEST_SPEED
   });
 };
 
@@ -42,11 +43,7 @@ interface MultipartUploadInput {
   body: Readable;
 }
 
-export const multipartUpload = async ({
-  bucket,
-  key,
-  body
-}: MultipartUploadInput) => {
+export const upload = async ({ bucket, key, body }: MultipartUploadInput) => {
   const parallelUploads3 = new Upload({
     client: s3,
     params: { Bucket: bucket, Key: key, Body: body },

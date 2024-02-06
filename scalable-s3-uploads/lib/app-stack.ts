@@ -36,7 +36,8 @@ export class AppStack extends cdk.Stack {
     });
 
     bucket.addObjectCreatedNotification(new s3n.SqsDestination(queue), {
-      prefix: 'uploads/'
+      prefix: 'uploads/',
+      suffix: '.csv'
     });
 
     return { queue };

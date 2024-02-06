@@ -7,7 +7,9 @@ import { describe, it } from 'node:test';
 import { s3 } from '../../clients';
 import { handler } from '../validate';
 
-const stream = sdkStreamMixin(createReadStream(__dirname + '/data/test.csv'));
+const stream = sdkStreamMixin(
+  createReadStream(__dirname + '/data/largefile.csv')
+);
 const s3Mock = mockClient(s3);
 
 const callHandler = async () => {
@@ -27,13 +29,13 @@ const callHandler = async () => {
 };
 
 describe('validate lambda handler', () => {
-  it('haa', async () => {
+  it('haha dude', async () => {
     s3Mock.on(GetObjectCommand).resolves({
       Body: stream
     });
 
     const r = await callHandler();
 
-    console.error(r);
+    console.log(r);
   });
 });

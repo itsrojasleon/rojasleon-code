@@ -5,7 +5,7 @@ import { stringify } from 'csv-stringify';
 import { PassThrough, Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { s3 } from '../clients';
-import { createGzip, multipartUpload, validatorTransform } from '../utils';
+import { createGzip, generateId, upload, validatorTransform } from '../utils';
 
 export const handler: SQSHandler = async (event) => {
   const failedMessageIds: string[] = [];
@@ -19,27 +19,33 @@ export const handler: SQSHandler = async (event) => {
       const objectKey = s3Evt.Records[0].s3.object.key;
 
       const { Body } = await s3.send(
-        new GetObjectCommand({ Bucket: bucketName, Key: objectKey })
+        new GetObjectCommand({
+          Bucket: bucketName,
+          Key: objectKey
+        })
       );
 
       if (!Body) throw new Error('file does not exist');
 
       const out = new PassThrough();
 
-      await pipeline(
+      pipeline(
         Body as Readable,
         parse({ columns: true }),
         validatorTransform(),
         stringify({ header: true }),
         createGzip(),
         out
-      );
+      ).catch((err) => {
+        throw err;
+      });
 
-      await multipartUpload({
+      await upload({
         bucket: bucketName,
-        key: `validations/${objectKey}.csv.gz`,
+        key: `validations/${generateId()}.csv.gz`,
         body: out
       });
+
       console.timeEnd('validation');
     } catch (err) {
       console.log(err);
@@ -47,7 +53,7 @@ export const handler: SQSHandler = async (event) => {
     }
   });
 
-  await Promise.allSettled(promises);
+  await Promise.all(promises);
   return {
     batchItemFailures: failedMessageIds.map((id) => ({
       itemIdentifier: id
