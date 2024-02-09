@@ -53,7 +53,7 @@ export const handler: SQSHandler = async (event) => {
     }
   });
 
-  await Promise.all(promises);
+  await Promise.allSettled(promises);
   return {
     batchItemFailures: failedMessageIds.map((id) => ({
       itemIdentifier: id

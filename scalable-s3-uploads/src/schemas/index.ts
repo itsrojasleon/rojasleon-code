@@ -5,25 +5,6 @@ export type User = FromSchema<typeof userSchema>;
 export const userSchema = {
   type: 'object',
   properties: {
-    userId: {
-      type: 'string',
-      pattern: 'U\\d+'
-    },
-    fullName: {
-      type: 'string'
-    },
-    email: {
-      type: 'string',
-      format: 'email'
-    },
-    phoneNumber: {
-      type: 'string',
-      pattern: '\\d{3}-\\d{3}-\\d{4}'
-    },
-    registrationDate: {
-      type: 'string',
-      format: 'date-time'
-    },
     eventId: {
       type: 'string',
       pattern: 'EVT\\d+'
@@ -31,26 +12,126 @@ export const userSchema = {
     eventName: {
       type: 'string'
     },
-    attendanceStatus: {
+    eventDate: {
       type: 'string',
-      enum: [
-        'Confirmed',
-        'Interested',
-        'Pending',
-        'Cancelled',
-        'Attended',
-        'Not Attended'
-      ]
+      format: 'date'
+    },
+    location: {
+      type: 'string'
+    },
+    organizerInfo: {
+      type: 'object',
+      properties: {
+        organizerId: {
+          type: 'string'
+        },
+        organizerName: {
+          type: 'string'
+        },
+        contact: {
+          type: 'string',
+          format: 'email'
+        },
+        website: {
+          type: 'string',
+          format: 'uri'
+        },
+        socialMedia: {
+          type: 'object',
+          properties: {
+            facebook: {
+              type: 'string'
+            },
+            twitter: {
+              type: 'string'
+            }
+          },
+          required: ['facebook', 'twitter']
+        }
+      },
+      required: ['organizerId', 'organizerName', 'contact']
+    },
+    attendeeList: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          attendeeId: {
+            type: 'string'
+          },
+          attendeeName: {
+            type: 'string'
+          },
+          status: {
+            type: 'string',
+            enum: ['Confirmed', 'Pending', 'Interested']
+          }
+        },
+        required: ['attendeeId', 'attendeeName', 'status']
+      }
+    },
+    sessions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          sessionId: {
+            type: 'string'
+          },
+          sessionName: {
+            type: 'string'
+          },
+          time: {
+            type: 'string',
+            format: 'date-time'
+          }
+        },
+        required: ['sessionId', 'sessionName', 'time']
+      }
+    },
+    costs: {
+      type: 'object',
+      properties: {
+        totalAmount: {
+          type: 'number'
+        },
+        currency: {
+          type: 'string'
+        },
+        breakdown: {
+          type: 'object',
+          properties: {
+            venue: { type: 'number' },
+            catering: { type: 'number' },
+            entertainment: { type: 'number' },
+            workshopMaterials: { type: 'number' }
+          },
+          required: ['venue', 'catering', 'entertainment', 'workshopMaterials']
+        }
+      },
+      required: ['totalAmount', 'currency', 'breakdown']
+    },
+    additionalNotes: {
+      type: 'object'
+    },
+    sponsorshipDetails: {
+      type: 'object'
+    },
+    transportationInfo: {
+      type: 'object'
+    },
+    accommodationDetails: {
+      type: 'object'
     }
   },
   required: [
-    'userId',
-    'fullName',
-    'email',
-    'phoneNumber',
-    'registrationDate',
     'eventId',
     'eventName',
-    'attendanceStatus'
+    'eventDate',
+    'location',
+    'organizerInfo',
+    'attendeeList',
+    'sessions',
+    'costs'
   ]
 } as const;
