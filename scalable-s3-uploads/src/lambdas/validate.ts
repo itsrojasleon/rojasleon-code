@@ -2,7 +2,7 @@ import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { S3Event, SQSHandler } from 'aws-lambda';
 import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify';
-import { PassThrough, Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { s3 } from '../clients';
 import { createGzip, generateId, upload, validatorTransform } from '../utils';
@@ -27,15 +27,14 @@ export const handler: SQSHandler = async (event) => {
 
       if (!Body) throw new Error('file does not exist');
 
-      const out = new PassThrough();
+      const gzip = createGzip();
 
       pipeline(
         Body as Readable,
         parse({ columns: true }),
         validatorTransform(),
         stringify({ header: true }),
-        createGzip(),
-        out
+        gzip
       ).catch((err) => {
         throw err;
       });
@@ -43,7 +42,7 @@ export const handler: SQSHandler = async (event) => {
       await upload({
         bucket: bucketName,
         key: `validations/${generateId()}.csv.gz`,
-        body: out
+        body: gzip
       });
 
       console.timeEnd('validation');

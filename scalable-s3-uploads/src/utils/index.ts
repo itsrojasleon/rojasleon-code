@@ -14,11 +14,11 @@ export const validatorTransform = () => {
     objectMode: true,
     transform(user: User, _, callback) {
       try {
-        const { errors } = validate(userSchema, user);
+        const { valid, errors } = validate(userSchema, user);
 
         callback(null, {
           ...user,
-          valid: errors.length === 0,
+          valid,
           ...(errors.length > 0 && {
             errors: errors.map((e) => e.message).join(', ')
           })
@@ -30,10 +30,17 @@ export const validatorTransform = () => {
   });
 };
 
+// NOTE: Keep in mind we're optmizing for speed and efficiency here.
 export const createGzip = () => {
   return zlib.createGzip({
-    flush: zlib.constants.Z_SYNC_FLUSH, // See http://www.zlib.net/manual.html#Advanced
-    level: zlib.constants.Z_BEST_SPEED
+    // Reduce memory usage for compression, balancing speed and efficiency.
+    memLevel: 7,
+    // Flush data as soon as possible for real-time streaming.
+    flush: zlib.constants.Z_SYNC_FLUSH,
+    // Optimize for fastest compression speed over ratio.
+    level: zlib.constants.Z_BEST_SPEED,
+    // Use Huffman coding for quicker, simpler compression.
+    strategy: zlib.constants.Z_HUFFMAN_ONLY
   });
 };
 
