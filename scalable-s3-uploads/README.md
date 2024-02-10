@@ -32,10 +32,9 @@ To create a csv file containing sample data, run the following command:
 bun scripts/create-csv-file.ts
 ```
 
+Quickly you'll see a file named `largefile.csv` in the same `scripts` folder.
 To upload the file to S3, first make sure you already have the presigned url and generated the file using previous command, then run:
 
 ```shell
 bun scripts/upload-csv-file.ts
 ```
-
-Quickly you'll see a file named `largefile.csv` in the same `scripts` folder.
