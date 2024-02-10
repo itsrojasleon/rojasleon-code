@@ -25,4 +25,4 @@ const generateCSV = (filePath: string, targetSizeInMB: number) => {
 
 const filePath = path.join(__dirname, 'largefile.csv');
 
-generateCSV(filePath, 200);
+generateCSV(filePath, 150);
