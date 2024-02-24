@@ -14,7 +14,8 @@ export class AwsLambdaPowerTuningStack extends cdk.Stack {
       timeout: cdk.Duration.minutes(5),
       bundling: {
         minify: true
-      }
+      },
+      memorySize: 128
     });
 
     // NOTE: When using aws-lambda-power-tuning you DON'T need a lambda URL, just
